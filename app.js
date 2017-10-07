@@ -9,12 +9,10 @@ mongoClient.connect(mongoUrl,(err,database) => {
   if(err) console.log(err);
   console.log("database opened");
   db = database;
-  //start server
-  server.listen(8000,'127.0.0.1');
+  app.listen(8000,'127.0.0.1');
 });
-const server = http.createServer((req,res) => {
-  const myURL = url.parse(req.url);
-  console.log(req.headers);
+
+app.post('/',function(req,res){
   var body = "";
   //console.log(myURL);
   req.on('data',(chunk) => {
@@ -37,6 +35,25 @@ const server = http.createServer((req,res) => {
   });
 });
 
-server.on('listening',() => {
-  console.log("listening");
+app.post('/update',function(req,res){
+  //console.log(req.headers);
+  var body = '';
+  req.on('data',(chunk) => {
+    body += chunk;
+  });
+  req.on('end',() => {
+    var marker = JSON.parse(body);
+    marker.coords.lng = parseFloat(marker.coords.lng.toFixed(6));
+    marker.tags = marker.tags.split(',');
+    console.log(marker.tags);
+    var query = {
+      coords : marker.coords
+    };
+    db.collection("locations").update(query,{$set: {name : marker.name,tags : marker.tags}},function(err,count,status){
+      if(err) console.log(err);
+      //console.log(count);
+      res.writeHead(200);
+      res.end();
+    });
+  });
 });

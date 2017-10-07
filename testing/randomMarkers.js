@@ -6,21 +6,28 @@ var bounds = {
   "north":28.491626188177214,
   "east":77.18265301801762
 };
-
+console.log(bounds.north.toFixed(6));
 function getRandom(max,min){
-  return Math.random() * (max-min) + min;
+  //console.log(typeof max);
+  //console.log( max);
+  // max = max.toFixed(6);
+  // min = min.toFixed(6);
+  var value = Math.random() * (max-min) + min;
+  return parseFloat(value.toFixed(6));
 }
 
 var str = "";
 for(var i = 0 ; i < 20 ; i++){
+
+  var lat = getRandom(bounds.north,bounds.south);
+  var lng = getRandom(bounds.east,bounds.west);
+  //console.log(lat);
   var obj = {
     "coords": {
-      "lat": 0,
-      "lng": 0
+      "lat": lat,
+      "lng": lng
     }
   };
-  obj.coords.lat = getRandom(bounds.north,bounds.south);
-  obj.coords.lng = getRandom(bounds.east,bounds.west);
   obj = JSON.stringify(obj);
   str += obj;
   str += "\n";

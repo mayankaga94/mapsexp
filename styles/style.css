@@ -19,3 +19,7 @@ a {
   padding-left: 0px;
   text-decoration: none;
 }
+
+#form {
+  padding : 5px;
+}
