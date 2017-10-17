@@ -9,7 +9,7 @@ mongoClient.connect(mongoUrl,(err,database) => {
   if(err) console.log(err);
   console.log("database opened");
   db = database;
-  app.listen(8000,'127.0.0.1');
+  app.listen(8000,'192.168.0.6');
 });
 
 app.post('/',function(req,res){
@@ -49,11 +49,43 @@ app.post('/update',function(req,res){
     var query = {
       coords : marker.coords
     };
-    db.collection("locations").update(query,{$set: {name : marker.name,tags : marker.tags}},function(err,count,status){
-      if(err) console.log(err);
-      //console.log(count);
+    console.log(query);
+    db.collection("locations").findAndModify(query,[],{$set: {name : marker.name,tags : marker.tags}},function(err,object){
+      //console.log(err);
+      if(err) {
+        console.log(err);
+        res.writeHead(400);
+        res.end();
+      } else {
+      console.log("no error");
+      console.log(object);
       res.writeHead(200);
       res.end();
+      }
     });
   });
 });
+
+app.post('/add',function(req,res){
+  var body = '';
+  req.on('data',(chunk) => {
+    body += chunk;
+  });
+
+  req.on('end',function(){
+    console.log(body);
+    var marker = JSON.parse(body);
+    console.log(marker);
+    db.collection('locations').insert(marker,function(err,result){
+      if(err){
+        console.log(err);
+        res.writeHead(400);
+        res.end();
+      } else {
+        console.log(result);
+        res.writeHead(200);
+        res.end();
+      }
+    });
+  });
+})

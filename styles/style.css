@@ -23,3 +23,20 @@ a {
 #form {
   padding : 5px;
 }
+#link {
+  color: blue;
+  text-align: right;
+}
+#link:hover {
+  cursor: pointer;
+}
+#success {
+  background-color: green;
+  color: white;
+  text-align: center;
+}
+#no-success {
+  background-color: red;
+  color: white;
+  text-align: center;
+}
