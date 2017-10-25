@@ -9,7 +9,7 @@ mongoClient.connect(mongoUrl,(err,database) => {
   if(err) console.log(err);
   console.log("database opened");
   db = database;
-  app.listen(8000,'192.168.0.6');
+  app.listen(8000,'127.0.0.1');
 });
 
 app.post('/',function(req,res){

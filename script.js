@@ -43,22 +43,23 @@ function fetchMarkers(map,bounds){
 
   xhttp.onreadystatechange = function(){
     console.log(this.readyState);
-    if(this.readyState == 4 && this.status == 200){
-      var markerObject = JSON.parse(this.responseText);
-      console.log("te to chala");
-      for(var i = 0 ; i < markerObject.length ; i++){
-        var marker = new google.maps.Marker({
-          position : markerObject[i].coords,
-          map : map,
-        });
-        markers.push(marker);
-        content = makeContent(markerObject[i],"get");
-        addListener(markerObject[i],markers[i],content,map);
-      }
-    } else if((this.status === 400 || this.status === 503) && this.readyState === 4)alert("Service Unavailable.Please try after some time.");
+    if(this.readyState == 4){
+      if(this.status == 200){
+        var markerObject = JSON.parse(this.responseText);
+        for(var i = 0 ; i < markerObject.length ; i++){
+          var marker = new google.maps.Marker({
+            position : markerObject[i].coords,
+            map : map,
+          });
+          markers.push(marker);
+          var content = makeContent(markerObject[i],"get");
+          addListener(markerObject[i],markers[i],content,map);
+        }
+      } else alert("Service Unavailable.Please try after some time.");
+    }
   };
 
-  xhttp.open("POST","http://192.168.0.6/node",true);
+  xhttp.open("POST","http://localhost/node",true);
   xhttp.setRequestHeader("Content-type","application/json");
   xhttp.send(bounds);
 }
@@ -118,25 +119,28 @@ function UpdateData(data,marker,map){
   var xhttp = new XMLHttpRequest();
   var obj = JSON.stringify(data);
   xhttp.onreadystatechange = function(){
-    if(this.readyState === 4 && this.status === 200){
-      var content = makeContent(data,'get');
-      content = content.replace("<li id = 'link'>Edit</li>","<li id = 'success'>Success</li>");
-      console.log(content);
-      setMarkers(null);
-      markers = [];
-      var bounds = JSON.stringify(map.getBounds().toJSON());
-      fetchMarkers(map,bounds);
-      addInfoWindow(marker,content,map);
+    if(this.readyState === 4){
+      if( this.status === 200){
+        var content = makeContent(data,'get');
+        content = content.replace("<li id = 'link'>Edit</li>","<li id = 'success'>Success</li>");
+        console.log(content);
+        setMarkers(null);
+        markers = [];
+        var bounds = JSON.stringify(map.getBounds().toJSON());
+        fetchMarkers(map,bounds);
+        addInfoWindow(marker,content,map);
+        }
+        else {
+          console.log("Bad Request");
+          var content = makeContent(data,'get');
+          content = content.replace("<li id = 'link'>Edit</li>","<li id = 'no-success'>Unsuccessful</li>");
+          console.log(content);
+          addInfoWindow(marker,content,map);
+        }
       //console.log(true);
-    } else if(this.readyState === 4 && this.status === 400){
-      console.log("Bad Request");
-      var content = makeContent(data,'get');
-      content = content.replace("<li id = 'link'>Edit</li>","<li id = 'no-success'>Unsuccessful</li>");
-      console.log(content);
-      addInfoWindow(marker,content,map);
     }
   };
-  xhttp.open("POST","http://192.168.0.6/node/update",true);
+  xhttp.open("POST","http://localhost/node/update",true);
   xhttp.setRequestHeader("Content-type","application/json");
   xhttp.send(obj);
 }
@@ -162,19 +166,21 @@ function addMarker(pos,map){
     console.log(doc);
     var data = JSON.stringify(doc);
     xhttp.onreadystatechange = function(){
-      if(this.readyState === 4 && this.status === 200){
-        var content = makeContent(doc,'get');
-        content = content.replace("<li id = 'link'>Edit</li>","<li id = 'success'>Success</li>");
-        console.log(content);
-        addInfoWindow(marker,content,map);
-      } else if(this.readyState === 4 && (this.status === 400 || this.status === 503)){
-        var content = makeContent(data,'get');
-        content = content.replace("<li id = 'link'>Edit</li>","<li id = 'no-success'>Unsuccessful</li>");
-        console.log(content);
-        addInfoWindow(marker,content,map);
+      if(this.readyState === 4){
+        if(this.status == 200){
+          var content = makeContent(doc,'get');
+          content = content.replace("<li id = 'link'>Edit</li>","<li id = 'success'>Success</li>");
+          console.log(content);
+          addInfoWindow(marker,content,map);
+        } else {
+          var content = makeContent(data,'get');
+          content = content.replace("<li id = 'link'>Edit</li>","<li id = 'no-success'>Unsuccessful</li>");
+          console.log(content);
+          addInfoWindow(marker,content,map);
+        }
       }
     };
-    xhttp.open('POST','http://192.168.0.6/node/add',true);
+    xhttp.open('POST','http://localhost/node/add',true);
     xhttp.setRequestHeader("Content-type","application/json");
     xhttp.send(data);
   });
